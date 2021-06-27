@@ -34,6 +34,20 @@ if (fs.lstatSync(logPath).isDirectory()) {
     }
   });
   console.log(logs);
+  let timeLines = [];
+  logs.forEach((log, index, array) => {
+    console.log(logPath + log);
+    let data = fs.readFileSync(logPath + log);
+    let logLines = data.toString().split("\n");
+    logLines.map((line, index, array) => {
+      if(line.includes("MAP IS NOW")) {
+        timeLines.push(array[index-1]);
+        timeLines.push(line);
+      }
+    });
+    console.log(timeLines);
+  });
+  // loop through logs, scan for marker
 }
 
 function parseTimeFromBasename(basename) {
