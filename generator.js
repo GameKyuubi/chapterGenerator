@@ -7,7 +7,9 @@ let logPath = (process.argv[3]) ? process.argv[3] : '.';
 let outputPath = (process.argv[4]) ? process.argv[4] : 'output.txt';
 
 let startTime = parseInt(parseTimeFromBasename(path.basename(videoPath, '.mkv')));
+startTime = new Date(startTime);
 let endTime = parseInt(startTime) + parseInt(getVideoDuration(videoPath)) * 1000;
+endTime = new Date(endTime);
 
 let logFilesInRange = [];
 let arrayOfYTLines = [];
@@ -41,13 +43,24 @@ if (fs.lstatSync(logPath).isDirectory()) {
     let logLines = data.toString().split("\n");
     logLines.map((line, index, array) => {
       if(line.includes("MAP IS NOW")) {
-        timeLines.push(array[index-1]);
-        timeLines.push(line);
+        let time = new Date(array[index-1]);
+        if(time > startTime) {
+          let seconds = (time - startTime)/1000;
+          let minutes = Math.floor(seconds / 60);
+          seconds = seconds % 60;
+          if(seconds < 10)
+            seconds = "0" + seconds;
+          let hours = Math.floor(minutes / 60);
+          minutes = minutes % 60;
+          if(minutes < 10)
+            minutes = "0" + minutes;
+          let map = line.split('"')[1];
+          timeLines.push(hours+":"+minutes+":"+seconds+" "+map);
+        }
       }
     });
-    console.log(timeLines);
+    console.log(timeLines.join("\n"));
   });
-  // loop through logs, scan for marker
 }
 
 function parseTimeFromBasename(basename) {
